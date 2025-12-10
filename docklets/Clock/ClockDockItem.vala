@@ -92,11 +92,33 @@ namespace Docky
 
 		protected override AnimationType on_clicked (PopupButton button, Gdk.ModifierType mod, uint32 event_time)
         {
-            int x, y;
+            int calendar_x, calendar_y, calendar_width, calendar_height, window_width, window_height;
             if(calendar == null) {
                 calendar = new ClockDockCalendar ();
-                calendar.get_position(out x, out y);
-                calendar.move(x, y - 300);
+                calendar.get_position(out calendar_x, out calendar_y);
+                calendar.get_size(out calendar_width, out calendar_height);
+                this.get_dock().window.get_size(out window_width, out window_height);
+
+                switch (this.get_dock().prefs.Position) {
+                    case Gtk.PositionType.BOTTOM:
+                        calendar_y -= window_height;
+                        calendar_y -= calendar_height;
+                        calendar_y -= this.get_dock().prefs.IconSize;
+                    break;
+                    case Gtk.PositionType.TOP:
+                        calendar_y += this.get_dock().prefs.IconSize;
+                    break;
+                    case Gtk.PositionType.LEFT:
+                        calendar_x += this.get_dock().prefs.IconSize;
+                    break;
+                    case Gtk.PositionType.RIGHT:
+                        calendar_x += window_width;
+                        calendar_x -= calendar_width;
+                        calendar_x += this.get_dock().prefs.IconSize;
+                    break;
+                }
+                calendar.move(calendar_x, calendar_y);
+
                 calendar.destroy.connect(
                     () => {
                         calendar = null;
